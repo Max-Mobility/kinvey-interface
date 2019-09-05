@@ -38,6 +38,9 @@ if (!fileData) {
 }
 
 const metadata = JSON.stringify({
+  "_acl": {
+    "gr": true
+  },
 	"_public": true,
 	"_filename": uploadName,
 	"_version": versionDecimal,
@@ -59,70 +62,81 @@ const metadata = JSON.stringify({
 })
 
 let auth = null;
-readline.question("username:", (un) => {
-	readline.question("password:", (pw) => {
-		let authorizationToEncode = `${un}:${pw}`;
-		const data = new Buffer(authorizationToEncode);
-		auth = 'Basic ' + data.toString('base64');
-		readline.close()
+readline.question("environment:", (env) => {
+  readline.question("username:", (un) => {
+	  readline.question("password:", (pw) => {
+		  let authorizationToEncode = `${un}:${pw}`;
+		  const data = new Buffer(authorizationToEncode);
+		  auth = 'Basic ' + data.toString('base64');
+		  readline.close()
 
-		const options = {
-			hostname: 'baas.kinvey.com',
-			port: 443,
-			path: '/blob/kid_SyIIDJjdM/',
-			method: 'POST',
-			headers: {
-				'Content-Type': 'application/json',
-				'X-Kinvey-Content-Type': 'application/octet-stream',
-				'Authorization': auth
-			}
-		}
+		  const options = {
+			  hostname: 'baas.kinvey.com',
+			  port: 443,
+			  path: '/blob/' + env + '/',
+			  method: 'POST',
+			  headers: {
+				  'Content-Type': 'application/json',
+				  'X-Kinvey-Content-Type': 'application/octet-stream',
+				  'Authorization': auth
+			  }
+		  }
 
-		const req = https.request(options, (res) => {
-			//console.log(`statusCode: ${res.statusCode}`)
+		  const req = https.request(options, (res) => {
+        const statusCode = res.statusCode;
+			  console.log(`statusCode: ${statusCode}`)
 
-			res.on('data', (d) => {
-				// have uploaded the metadata - now upload the file to google
-				// cloud storage
-				const data = JSON.parse(d.toString());
-				const requiredHeaders = data['_requiredHeaders'];
-				const url = data['_uploadURL'].replace('http://storage.googleapis.com', '');
-				//console.log(`uploading to url: ${url}`);
+        if (statusCode === 200) {
+			    res.on('data', (d) => {
+				    // have uploaded the metadata - now upload the file to google
+				    // cloud storage
+				    const data = JSON.parse(d.toString());
+				    const requiredHeaders = data['_requiredHeaders'];
+				    const url = data['_uploadURL'].replace('http://storage.googleapis.com', '');
+				    //console.log(`uploading to url: ${url}`);
 
-				const uploadOptions = {
-					hostname: 'storage.googleapis.com',
-					path: url,
-					method: 'PUT',
-					headers: {
-						'Content-Length': fileData.length,
-						'Content-Type': 'application/octet-stream'
-					}
-				};
-				// add any required headers
-				Object.keys(requiredHeaders).map(k => {
-					uploadOptions.headers[k] = requiredHeaders[k];
-				});
-				let uploadReq = https.request(uploadOptions, (res2) => {
-					console.log(`upload status: ${res2.statusCode}`);
-				});
-				uploadReq.on('error', (error) => {
-					console.error(error);
-				});
-				// now acutally upload the file
-				uploadReq.write(fileData);
-				uploadReq.end();
-			});
-		});
+				    const uploadOptions = {
+					    hostname: 'storage.googleapis.com',
+					    path: url,
+					    method: 'PUT',
+					    headers: {
+						    'Content-Length': fileData.length,
+						    'Content-Type': 'application/octet-stream'
+					    }
+				    };
+				    // add any required headers
+				    Object.keys(requiredHeaders).map(k => {
+					    uploadOptions.headers[k] = requiredHeaders[k];
+				    });
+				    let uploadReq = https.request(uploadOptions, (res2) => {
+					    console.log(`upload status: ${res2.statusCode}`);
+				    });
+				    uploadReq.on('error', (error) => {
+					    console.error(error);
+				    });
+				    // now acutally upload the file
+				    uploadReq.write(fileData);
+				    uploadReq.end();
+			    });
+        } else {
+          res.on('data', d => {
+            console.error('Could not upload file, status code:', statusCode);
+            console.error('data:');
+            console.error(d.toString());
+          });
+        }
+		  });
 
-		req.on('error', (error) => {
-			console.error(error)
-		});
+		  req.on('error', (error) => {
+			  console.error(error)
+		  });
 
-		// now actually send the request
-		req.write(metadata)
-		req.end()
+		  // now actually send the request
+		  req.write(metadata)
+		  req.end()
 
-	});
+	  });
+  });
 });
 
 
