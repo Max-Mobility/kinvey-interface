@@ -55,10 +55,13 @@ const metadata = JSON.stringify({
 		"es": [],
 		"de": [],
 		"fr": [],
-		"nl": [],
-		"ja": [],
+    "ja": [],
 		"ko": [],
-		"zh": []
+		"nl": [],
+    "ru": [],
+		"sv": [],
+		"zh": [],
+		"zh-CN": []
 	},
 })
 
