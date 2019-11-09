@@ -1,0 +1,24 @@
+{
+  "name": "kinvey-interface",
+  "version": "1.0.0",
+  "description": "",
+  "main": "uploadLanguageFiles.js",
+  "dependencies": {
+    "@maxmobility/private-keys": "git+https://github.com/autochair/maxmobility-private-keys.git",
+    "glob": "^7.1.6"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/max-mobility/kinvey-interface.git"
+  },
+  "author": "William Emfinger",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/max-mobility/kinvey-interface/issues"
+  },
+  "homepage": "https://github.com/max-mobility/kinvey-interface#readme"
+}
