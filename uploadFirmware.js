@@ -5,14 +5,9 @@ const https = require('https');
 const fs = require('fs');
 
 if (process.argv.length < 5) {
-	console.error('You must provide: file path, uploaded name, and version string!');
+	console.error('You must provide: file path, uploaded name, and version string, and (OPTIONALLY) the change notes file!');
 	process.exit(1);
 }
-
-const readline = require('readline').createInterface({
-  input: process.stdin,
-  output: process.stdout
-})
 
 function versionStringToByte(version) {
     const [major, minor] = version.split('.');
@@ -38,6 +33,40 @@ if (!fileData) {
 	process.exit(1);
 }
 
+const changeNotes = {
+	"en": [],
+	"es": [],
+	"de": [],
+	"fr": [],
+  "ja": [],
+	"ko": [],
+	"nl": [],
+  "ru": [],
+	"sv": [],
+	"zh": [],
+	"zh-CN": []
+};
+
+if (process.argv.length === 6) {
+  const changeNotesFileName = process.argv[5];
+  let changeNotesData = null;
+  try {
+    changeNotesData = fs.readFileSync(changeNotesFileName);
+  } catch (err) {
+    console.error(`Could not open ${changeNotesFileName}: ${err}!`);
+    process.exit(1);
+  }
+  if (!changeNotesData) {
+	  console.error(`Could not open ${changeNotesFileName}: unknown error!`);
+	  process.exit(1);
+  }
+  try {
+    changeNotes = JSON.parse(changeNotesData);
+  } catch (err) {
+    console.error(`Could not parse content from ${changeNotesFileName}: ${err}`);
+  }
+}
+
 const metadata = JSON.stringify({
   "_acl": {
     "gr": true
@@ -50,19 +79,7 @@ const metadata = JSON.stringify({
 	"mimeType": "application/octet-stream",
 	"firmware_file": true,
 	"translation_file": false,
-	"change_notes": {
-		"en": [],
-		"es": [],
-		"de": [],
-		"fr": [],
-    "ja": [],
-		"ko": [],
-		"nl": [],
-    "ru": [],
-		"sv": [],
-		"zh": [],
-		"zh-CN": []
-	},
+	"change_notes": changeNotes
 })
 
 let auth = null;
