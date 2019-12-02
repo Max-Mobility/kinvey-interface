@@ -7,24 +7,28 @@ const https = require('https');
 const fs = require('fs');
 
 if (process.argv.length < 5) {
-	console.error('You must provide: path to i18n directory, app_name, and version string!');
+	console.error('You must provide: (path to i18n directory | path to single language file), app_name, and version string!');
 	process.exit(1);
 }
 
-const folderName = process.argv[2];
+const input = process.argv[2];
 const appName = process.argv[3];
 const versionString = process.argv[4];
 const versionNumber = +versionString;
 const versionDecimal = parseFloat(versionString);
 let fileData = null;
 
-const globText = path.join(folderName, '*.json');
-
 async function processFiles() {
-  const fileNames = glob.sync(globText);
-  for (let i=0; i<fileNames.length; i++) {
-    const fileName = fileNames[i];
-    await upload(fileName);
+  if (input.includes('.json')) {
+    await upload(input);
+  } else {
+    const folderName = input;
+    const globText = path.join(folderName, '*.json');
+    const fileNames = glob.sync(globText);
+    for (let i=0; i<fileNames.length; i++) {
+      const fileName = fileNames[i];
+      await upload(fileName);
+    }
   }
   process.exit(0);
 }
