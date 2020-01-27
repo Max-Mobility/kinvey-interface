@@ -33,7 +33,7 @@ if (!fileData) {
 	process.exit(1);
 }
 
-const changeNotes = {
+let changeNotes = {
 	"en": [],
 	"es": [],
 	"de": [],

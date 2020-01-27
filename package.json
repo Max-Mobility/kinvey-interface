@@ -5,6 +5,7 @@
   "main": "uploadLanguageFiles.js",
   "dependencies": {
     "@maxmobility/private-keys": "git+https://github.com/autochair/maxmobility-private-keys.git",
+    "core-util-is": "^1.0.2",
     "glob": "^7.1.6"
   },
   "devDependencies": {},
