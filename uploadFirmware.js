@@ -4,8 +4,8 @@ const PushTrackerKinveyKeys = require('@maxmobility/private-keys').PushTrackerKi
 const https = require('https');
 const fs = require('fs');
 
-if (process.argv.length < 5) {
-	console.error('You must provide: file path, uploaded name, and version string, and (OPTIONALLY) the change notes file!');
+if (process.argv.length < 6) {
+	console.error('You must provide: file path, uploaded name, version string, and app name, and (OPTIONALLY) the change notes file!');
 	process.exit(1);
 }
 
@@ -17,6 +17,7 @@ function versionStringToByte(version) {
 const fileName = process.argv[2];
 const uploadName = process.argv[3];
 const versionString = process.argv[4];
+const appName = process.argv[5];
 const versionNumber = versionStringToByte(versionString);
 const versionDecimal = parseFloat(versionString);
 let fileData = null;
@@ -47,8 +48,8 @@ let changeNotes = {
 	"zh-CN": []
 };
 
-if (process.argv.length === 6) {
-  const changeNotesFileName = process.argv[5];
+if (process.argv.length === 7) {
+  const changeNotesFileName = process.argv[6];
   let changeNotesData = null;
   try {
     changeNotesData = fs.readFileSync(changeNotesFileName);
@@ -74,6 +75,7 @@ const metadata = JSON.stringify({
 	"_public": true,
 	"_filename": uploadName,
 	"_version": versionDecimal,
+  "app_name": appName,
 	"version": versionString,
 	"size": fileData.length,
 	"mimeType": "application/octet-stream",
